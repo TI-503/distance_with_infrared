@@ -1590,12 +1590,12 @@ static long ConfigureSimpleLinkToDefaultState()
 	// Set connection policy to Auto + SmartConfig
 	//      (Device's default connection policy)
 	lRetVal = sl_WlanPolicySet(SL_POLICY_CONNECTION,
-			SL_CONNECTION_POLICY(1, 0, 0, 0, 0), NULL, 1);
+			SL_CONNECTION_POLICY(1, 0, 0, 0, 1), NULL, 1);
 	ASSERT_ON_ERROR(lRetVal);
 
 	// Remove all profiles
-	lRetVal = sl_WlanProfileDel(0xFF);
-	ASSERT_ON_ERROR(lRetVal);
+	//lRetVal = sl_WlanProfileDel(0xFF);
+	//ASSERT_ON_ERROR(lRetVal);
 
 
 
@@ -1719,8 +1719,13 @@ static long WlanConnect()
 	secParams.KeyLen = strlen(SECURITY_KEY);
 	secParams.Type = SECURITY_TYPE;
 
+	//	∂œœﬂ÷ÿ¡¨
+	lRetVal = sl_WlanProfileAdd(SSID_NAME,strlen(SSID_NAME),0,&secParams,0,7,0);
+	ASSERT_ON_ERROR(lRetVal);
+
 	lRetVal = sl_WlanConnect((signed char*)SSID_NAME, strlen(SSID_NAME), 0, &secParams, 0);
 	ASSERT_ON_ERROR(lRetVal);
+
 
 	// Wait for WLAN Event
 	while ((!IS_CONNECTED(g_ulStatus)) || (!IS_IP_ACQUIRED(g_ulStatus)))
