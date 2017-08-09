@@ -1330,6 +1330,7 @@ int RecvCtrlMsg()
 				// rotate
 				//RotateAngle(angle);
 				UART_PRINT("angle in RotateAngle is %f\n\r", angle);
+
 				char dir='+';
 				if(angle>=0)	// 顺时针
 				{
@@ -1340,22 +1341,20 @@ int RecvCtrlMsg()
 					angle=-angle;
 					dir='-';
 				}
-				// 转的圈数
-				float ring;
-				float delay;
 
-				ring = angle / (float)49.0909;
-				delay = ring * (float)14210526.0;
+				float sec = timeOfCarRotateAngle(angle);
 
-				Report("dir %c, angle %f, ring %f, delay %f\r\n",dir, angle, ring, delay);
+				Report("dir %c, angle %f, sec %f\r\n", dir, angle, sec);
 				Rotate(dir);
-				MAP_UtilsDelay(delay);
+				MAP_UtilsDelay(80000000 / 6 * sec);
+
 				//osi_Sleep(1000 * delay);
 				Pause();
+
 				Forward();
-				//detectObstacle();
+				detectObstacle();
 				//MAP_UtilsDelay(0.1*8000000);
-				delaySec(0.1);
+				delaySec(1);
 				Pause();
 				// sl_Send(g_sockID, g_fix, 60, 0);
 			}
@@ -1879,7 +1878,7 @@ BoardInit(void)
 // 转指定角度
 void RotateAngle(float angle)
 {
-	UART_PRINT("angle in RotateAngle is %f\n\r", angle);
+	Report("%f\r\n",angle);
 	char dir='+';
 	if(angle>=0)	// 顺时针
 	{
@@ -1890,17 +1889,13 @@ void RotateAngle(float angle)
 		angle=-angle;
 		dir='-';
 	}
-	// 转的圈数
-	float ring;
-	float delay;
 
-	ring = angle / (float)49.0909;
-	delay = ring * (float)14210526.0;
+	float sec = timeOfCarRotateAngle(angle);
 
-	Report("dir %c, angle %f, ring %f, delay %f\r\n",dir, angle, ring, delay);
+	Report("dir %c, angle %f, sec %f\r\n", dir, angle, sec);
 	Rotate(dir);
-	//MAP_UtilsDelay(delay);
-	osi_Sleep(1000 * delay);
+	MAP_UtilsDelay(80000000 / 6 * sec);
+	Report("done");
 	Pause();
 }
 

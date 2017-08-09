@@ -20,4 +20,10 @@ void Pause();// 停止
 void delaySec(float sec);
 int isMoving();// 是否正在移动
 
+// motor
+float timeOfWheelRotateAngle(float angle);
+float timeOfDistance(float distance);
+float timeOfCarRotateAngle(float carAngle);
+
+
 #endif /* ROTATE_MOVE_H_ */

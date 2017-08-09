@@ -99,10 +99,40 @@ void delaySec(float sec)
 {
 	if(os_m==0)
 	{
-		MAP_UtilsDelay(sec*8000000);
+		MAP_UtilsDelay(sec*80000000/6);
 	}
 	else
 	{
 		osi_Sleep((unsigned int)(sec*1000));
 	}
+}
+
+
+float timeOfWheelRotateAngle(float angle)
+{
+	float frequency = 1000.0;// 10 * 100.0;
+
+	float stepPerDegree = 8.88888889; // 3200.0 / 360.0;
+
+	float totalStep = stepPerDegree * angle;
+
+	float time = totalStep / frequency;
+	return time;
+}
+
+float timeOfDistance(float distance_cm)
+{
+	float perimeter = 18.2212374; // cm
+	float ring = distance_cm / perimeter;
+	float angle = ring * 360.0;
+
+	return timeOfWheelRotateAngle(angle);
+}
+float timeOfCarRotateAngle(float carAngle)
+{
+	float carPerimeter= 135.088484;
+
+	float dis = carPerimeter * carAngle / 360.0;
+
+	return timeOfDistance(dis);
 }

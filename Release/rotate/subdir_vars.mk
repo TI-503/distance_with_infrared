@@ -12,12 +12,12 @@ OBJS += \
 ./rotate/rotate.obj 
 
 C_DEPS += \
-./rotate/move.pp \
-./rotate/rotate.pp 
+./rotate/move.d \
+./rotate/rotate.d 
 
 C_DEPS__QUOTED += \
-"rotate\move.pp" \
-"rotate\rotate.pp" 
+"rotate\move.d" \
+"rotate\rotate.d" 
 
 OBJS__QUOTED += \
 "rotate\move.obj" \

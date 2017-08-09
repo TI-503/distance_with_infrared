@@ -4,7 +4,7 @@
 
 SHELL = cmd.exe
 
-CG_TOOL_ROOT := C:/ti/ccsv6/tools/compiler/ti-cgt-arm_5.2.9
+CG_TOOL_ROOT := C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.1.LTS
 
 GEN_OPTS__FLAG := 
 GEN_CMDS__FLAG := 
@@ -22,7 +22,7 @@ ORDERED_OBJS += \
 "./rotate/rotate.obj" \
 "../cc3200v1p32.cmd" \
 $(GEN_CMDS__FLAG) \
--l"libc.a" \
+-llibc.a \
 -ldriverlib.a \
 -lsimplelink.a \
 -lfree_rtos.a \
@@ -58,6 +58,9 @@ ifneq ($(strip $(ASM_DEPS)),)
 endif
 ifneq ($(strip $(CC_DEPS)),)
 -include $(CC_DEPS)
+endif
+ifneq ($(strip $(SV7A_DEPS)),)
+-include $(SV7A_DEPS)
 endif
 ifneq ($(strip $(S55_DEPS)),)
 -include $(S55_DEPS)
@@ -150,14 +153,14 @@ all: distance_with_infrared.out
 distance_with_infrared.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: ARM Linker'
-	"C:/ti/ccsv6/tools/compiler/ti-cgt-arm_5.2.9/bin/armcl" -mv7M4 --code_state=16 --float_support=vfplib --abi=eabi -me -g --gcc --define=ccs --define=SL_PLATFORM_MULTI_THREADED --define=USE_FREERTOS --define=cc3200 --display_error_number --diag_warning=225 --diag_wrap=off -z -m"distance_with_infrared.map" --heap_size=0x2000 --stack_size=0x1000 -i"C:/ti/ccsv6/tools/compiler/ti-cgt-arm_5.2.9/lib" -i"C:/ti/ccsv6/tools/compiler/ti-cgt-arm_5.2.9/include" -i"C:/ti/CC3200SDK_1.1.0/cc3200-sdk/driverlib/ccs/Release" -i"C:/ti/CC3200SDK_1.1.0/cc3200-sdk/simplelink/ccs/OS" -i"C:/ti/CC3200SDK_1.1.0/cc3200-sdk/oslib/ccs/free_rtos" --reread_libs --warn_sections --display_error_number --diag_wrap=off --xml_link_info="distance_with_infrared_linkInfo.xml" --rom_model -o "distance_with_infrared.out" $(ORDERED_OBJS)
+	"C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.1.LTS/bin/armcl" -mv7M4 --code_state=16 --float_support=vfplib --abi=eabi -me -g --gcc --define=ccs --define=SL_PLATFORM_MULTI_THREADED --define=USE_FREERTOS --define=cc3200 --display_error_number --diag_warning=225 --diag_wrap=off -z -m"distance_with_infrared.map" --heap_size=0x2000 --stack_size=0x1000 -i"C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.1.LTS/lib" -i"C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.1.LTS/include" -i"C:/ti/CC3200SDK_1.1.0/cc3200-sdk/driverlib/ccs/Release" -i"C:/ti/CC3200SDK_1.1.0/cc3200-sdk/simplelink/ccs/OS" -i"C:/ti/CC3200SDK_1.1.0/cc3200-sdk/oslib/ccs/free_rtos" --reread_libs --warn_sections --display_error_number --diag_wrap=off --xml_link_info="distance_with_infrared_linkInfo.xml" --rom_model -o "distance_with_infrared.out" $(ORDERED_OBJS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 	@$(MAKE) --no-print-directory post-build
 
 distance_with_infrared.bin: $(EXE_OUTPUTS)
 	@echo 'Invoking: ARM Hex Utility'
-	"C:/ti/ccsv6/tools/compiler/ti-cgt-arm_5.2.9/bin/armhex"  -o "distance_with_infrared.bin" $(EXE_OUTPUTS__QUOTED)
+	"C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.1.LTS/bin/armhex"  -o "distance_with_infrared.bin" $(EXE_OUTPUTS__QUOTED)
 	@echo 'Finished building: $@'
 	@echo ' '
 	@$(MAKE) --no-print-directory post-build
@@ -165,14 +168,14 @@ distance_with_infrared.bin: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)$(BIN_OUTPUTS__QUOTED)
-	-$(RM) "device_status.pp" "gpio_if.pp" "i2c_if.pp" "main.pp" "pinmux.pp" "smartconfig.pp" "startup_ccs.pp" "uart_if.pp" "rotate\move.pp" "rotate\rotate.pp" 
+	-$(RM) "device_status.d" "gpio_if.d" "i2c_if.d" "main.d" "pinmux.d" "smartconfig.d" "startup_ccs.d" "uart_if.d" "rotate\move.d" "rotate\rotate.d" 
 	-$(RM) "device_status.obj" "gpio_if.obj" "i2c_if.obj" "main.obj" "pinmux.obj" "smartconfig.obj" "startup_ccs.obj" "uart_if.obj" "rotate\move.obj" "rotate\rotate.obj" 
 	-@echo 'Finished clean'
 	-@echo ' '
 
 post-build:
 	-@echo 'convert to bin files'
-	-"C:/ti/ccsv6/utils/tiobj2bin/tiobj2bin" "distance_with_infrared.out" "distance_with_infrared.bin" "C:/ti/ccsv6/tools/compiler/ti-cgt-arm_5.2.9/bin/armofd" "C:/ti/ccsv6/tools/compiler/ti-cgt-arm_5.2.9/bin/armhex" "C:/ti/ccsv6/utils/tiobj2bin/mkhex4bin"
+	-"C:/ti/ccsv6/utils/tiobj2bin/tiobj2bin" "distance_with_infrared.out" "distance_with_infrared.bin" "C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.1.LTS/bin/armofd" "C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.1.LTS/bin/armhex" "C:/ti/ccsv6/utils/tiobj2bin/mkhex4bin"
 	-@echo ' '
 
 .PHONY: all clean dependents

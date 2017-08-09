@@ -27,24 +27,24 @@ OBJS += \
 ./uart_if.obj 
 
 C_DEPS += \
-./device_status.pp \
-./gpio_if.pp \
-./i2c_if.pp \
-./main.pp \
-./pinmux.pp \
-./smartconfig.pp \
-./startup_ccs.pp \
-./uart_if.pp 
+./device_status.d \
+./gpio_if.d \
+./i2c_if.d \
+./main.d \
+./pinmux.d \
+./smartconfig.d \
+./startup_ccs.d \
+./uart_if.d 
 
 C_DEPS__QUOTED += \
-"device_status.pp" \
-"gpio_if.pp" \
-"i2c_if.pp" \
-"main.pp" \
-"pinmux.pp" \
-"smartconfig.pp" \
-"startup_ccs.pp" \
-"uart_if.pp" 
+"device_status.d" \
+"gpio_if.d" \
+"i2c_if.d" \
+"main.d" \
+"pinmux.d" \
+"smartconfig.d" \
+"startup_ccs.d" \
+"uart_if.d" 
 
 OBJS__QUOTED += \
 "device_status.obj" \
