@@ -596,21 +596,6 @@ void detectObstacle()
 		return;
 	}
 
-	//	// 向前走
-	//	if(isMoving()==1)
-	//	{
-	//		if(g_forwardInfrared==0||g_lfInfrared==0||g_rfInfrared==0)
-	//		{
-	//			Left();
-	//			return;
-	//		}
-	//		else{
-	//			Forward();
-	//			return;
-	//		}
-	//	}
-
-
 	// 向前走
 	if(isMoving()==1)
 	{
@@ -631,12 +616,12 @@ void detectObstacle()
 				if(tryLeft==1)
 				{
 					Left();
-					delaySec(1.5);
+					delaySec(timeOfDistance(8.0));
 				}
 				else if(tryRight==1)
 				{
 					Right();
-					delaySec(1.5);
+					delaySec(timeOfDistance(8.0));
 				}
 
 				Forward();
@@ -1872,34 +1857,6 @@ BoardInit(void)
 
 	PRCMCC3200MCUInit();
 }
-
-
-
-// 转指定角度
-void RotateAngle(float angle)
-{
-	Report("%f\r\n",angle);
-	char dir='+';
-	if(angle>=0)	// 顺时针
-	{
-		dir='+';
-	}
-	else	//逆时针
-	{
-		angle=-angle;
-		dir='-';
-	}
-
-	float sec = timeOfCarRotateAngle(angle);
-
-	Report("dir %c, angle %f, sec %f\r\n", dir, angle, sec);
-	Rotate(dir);
-	MAP_UtilsDelay(80000000 / 6 * sec);
-	Report("done");
-	Pause();
-}
-
-
 
 
 //****************************************************************************

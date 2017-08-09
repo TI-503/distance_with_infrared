@@ -136,3 +136,26 @@ float timeOfCarRotateAngle(float carAngle)
 
 	return timeOfDistance(dis);
 }
+// 转指定角度
+void RotateAngle(float angle)
+{
+	Report("%f\r\n",angle);
+	char dir='+';
+	if(angle>=0)	// 顺时针
+	{
+		dir='+';
+	}
+	else	//逆时针
+	{
+		angle=-angle;
+		dir='-';
+	}
+
+	float sec = timeOfCarRotateAngle(angle);
+
+	Report("dir %c, angle %f, sec %f\r\n", dir, angle, sec);
+	Rotate(dir);
+	MAP_UtilsDelay(80000000 / 6 * sec);
+	Report("done");
+	Pause();
+}
