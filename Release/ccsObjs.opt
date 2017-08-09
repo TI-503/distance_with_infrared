@@ -1,1 +1,0 @@
-"./device_status.obj" "./gpio_if.obj" "./i2c_if.obj" "./main.obj" "./pinmux.obj" "./smartconfig.obj" "./startup_ccs.obj" "./uart_if.obj" "./rotate/move.obj" "./rotate/rotate.obj" "../cc3200v1p32.cmd" -llibc.a -ldriverlib.a -lsimplelink.a -lfree_rtos.a 
