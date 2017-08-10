@@ -186,6 +186,9 @@ char g_cBsdBuf[BUF_SIZE];
 char g_recvBuf[BUF_SIZE];
 
 unsigned int connect_flag = 0;
+unsigned int first_connect_flag = 0;
+int disconnect_handler_flag = -1;
+int connect_handler_flag = -1;
 
 float g_temp;
 int g_sockID;
@@ -235,7 +238,7 @@ static long WlanConnect();
 void WlanStationMode(void *pvParameters);
 static void InitializeAppVariables();
 static long ConfigureSimpleLinkToDefaultState();
-
+void InitNetworkService();
 
 #ifdef USE_FREERTOS
 //*****************************************************************************
@@ -352,12 +355,22 @@ void SimpleLinkWlanEventHandler(SlWlanEvent_t *pWlanEvent)
 				pWlanEvent->EventData.STAandP2PModeWlanConnected.bssid,
 				SL_BSSID_LENGTH);
 
-		UART_PRINT("[WLAN EVENT] STA Connected to the AP: %s ,"
+		UART_PRINT("[Jack WLAN EVENT] STA Connected to the AP: %s ,"
 				"BSSID: %x:%x:%x:%x:%x:%x\n\r",
 				g_ucConnectionSSID, g_ucConnectionBSSID[0],
 				g_ucConnectionBSSID[1], g_ucConnectionBSSID[2],
 				g_ucConnectionBSSID[3], g_ucConnectionBSSID[4],
 				g_ucConnectionBSSID[5]);
+
+//		disconnect_handler_flag = 0;
+//		connect_handler_flag = 1;
+//		connect_flag = 1;
+
+		//		if(!connect_flag && !first_connect){
+		//			connect_flag = 1;
+		//			InitNetworkService();
+		//		}
+
 	}
 	break;
 
@@ -374,7 +387,7 @@ void SimpleLinkWlanEventHandler(SlWlanEvent_t *pWlanEvent)
 		//'reason_code' is SL_USER_INITIATED_DISCONNECTION
 		if (SL_USER_INITIATED_DISCONNECTION == pEventData->reason_code)
 		{
-			UART_PRINT("[WLAN EVENT]Device disconnected from the AP: %s,"
+			UART_PRINT("[Jack WLAN EVENT]Device disconnected from the AP: %s,"
 					"BSSID: %x:%x:%x:%x:%x:%x on application's request \n\r",
 					g_ucConnectionSSID, g_ucConnectionBSSID[0],
 					g_ucConnectionBSSID[1], g_ucConnectionBSSID[2],
@@ -383,7 +396,7 @@ void SimpleLinkWlanEventHandler(SlWlanEvent_t *pWlanEvent)
 		}
 		else
 		{
-			UART_PRINT("[WLAN ERROR]Device disconnected from the AP AP: %s,"
+			UART_PRINT("[Jack WLAN ERROR]Device disconnected from the AP AP: %s,"
 					"BSSID: %x:%x:%x:%x:%x:%x on an ERROR..!! \n\r",
 					g_ucConnectionSSID, g_ucConnectionBSSID[0],
 					g_ucConnectionBSSID[1], g_ucConnectionBSSID[2],
@@ -392,6 +405,19 @@ void SimpleLinkWlanEventHandler(SlWlanEvent_t *pWlanEvent)
 		}
 		memset(g_ucConnectionSSID, 0, sizeof(g_ucConnectionSSID));
 		memset(g_ucConnectionBSSID, 0, sizeof(g_ucConnectionBSSID));
+
+		disconnect_handler_flag = 1;
+		connect_handler_flag = 0;
+		//if(first_connect_flag);
+			//sl_Close(g_iServerSockID);
+		UART_PRINT("Disconnection Event\n\r");
+
+		//		if(!first_connect){
+		//			sl_Close(g_iServerSockID);
+		//					connect_flag = 0;
+		//		}
+
+
 	}
 	break;
 
@@ -440,6 +466,10 @@ void SimpleLinkNetAppEventHandler(SlNetAppEvent_t *pNetAppEvent)
 				SL_IPV4_BYTE(pNetAppEvent->EventData.ipAcquiredV4.gateway, 2),
 				SL_IPV4_BYTE(pNetAppEvent->EventData.ipAcquiredV4.gateway, 1),
 				SL_IPV4_BYTE(pNetAppEvent->EventData.ipAcquiredV4.gateway, 0));
+		disconnect_handler_flag = 0;
+		connect_handler_flag = 1;
+		connect_flag = 1;
+		UART_PRINT("JACK NETAPP EVENT\n\r");
 	}
 	break;
 
@@ -838,38 +868,6 @@ void detectObstacle()
 
 //*****************************************************************************
 //
-//! Send Thread
-//!
-//! This function
-//!        1. Function for reading the user input for UDP RX/TX
-//!
-//!  \return 0 : Success, -ve : failure
-//
-//*****************************************************************************
-void SendThread(void *pvParameters)
-{
-
-	while (!connect_flag);
-
-	UART_PRINT("Default settings: SSID Name: %s, PORT = %d, Packet Count = %d, "
-			"Destination IP: %d.%d.%d.%d\n\r",
-			SSID_NAME, g_uiPortNum, g_ulPacketCount,
-			SL_IPV4_BYTE(g_ulDestinationIp, 3),
-			SL_IPV4_BYTE(g_ulDestinationIp, 2),
-			SL_IPV4_BYTE(g_ulDestinationIp, 1),
-			SL_IPV4_BYTE(g_ulDestinationIp, 0));
-
-
-
-	BsdTcpClient(g_uiPortNum);
-
-
-	return;
-
-}
-
-//*****************************************************************************
-//
 //! InitTcpServer
 //!
 //! This function
@@ -1094,74 +1092,74 @@ int BsdTcpServer(unsigned short usPort)
 	return SUCCESS;
 }
 
-int BsdTcpServer2(unsigned short usPort)
-{
-	SlSockAddrIn_t  sAddr;
-	SlSockAddrIn_t  sLocalAddr;
-	int             iCounter;
-	int             iAddrSize;
-	int             iSockID;
-	int             iStatus;
-	int             iNewSockID;
-	long            lLoopCount = 0;
-	long            lNonBlocking = 1;
-	int             iTestBufLen;
-
-	// filling the buffer
-	for (iCounter = 0; iCounter<BUF_SIZE; iCounter++)
-	{
-		g_cBsdBuf[iCounter] = (char)(iCounter % 10);
-	}
-
-	iTestBufLen = BUF_SIZE;
-
-	//filling the TCP server socket address
-	sLocalAddr.sin_family = SL_AF_INET;
-	sLocalAddr.sin_port = sl_Htons((unsigned short)usPort);
-	sLocalAddr.sin_addr.s_addr = 0;
-	g_ServerAddr2=sLocalAddr;
-
-	// creating a TCP socket
-	iSockID = sl_Socket(SL_AF_INET, SL_SOCK_STREAM, 0);
-
-	if (iSockID < 0)
-	{
-		// error
-		ASSERT_ON_ERROR(SOCKET_CREATE_ERROR);
-	}
-	g_iServerSockID2 = iSockID;
-	iAddrSize = sizeof(SlSockAddrIn_t);
-
-	// binding the TCP socket to the TCP server address
-	iStatus = sl_Bind(iSockID, (SlSockAddr_t *)&sLocalAddr, iAddrSize);
-	if (iStatus < 0)
-	{
-		// error
-		sl_Close(iSockID);
-		ASSERT_ON_ERROR(BIND_ERROR);
-	}
-
-	// putting the socket for listening to the incoming TCP connection
-	iStatus = sl_Listen(iSockID, 2);
-	if (iStatus < 0)
-	{
-		sl_Close(iSockID);
-		ASSERT_ON_ERROR(LISTEN_ERROR);
-	}
-
-	Report("Listening Port: %d (%d)\n\r", usPort,sl_Htons(sLocalAddr.sin_port));
-
-	// setting socket option to make the socket as non blocking
-	iStatus = sl_SetSockOpt(iSockID, SL_SOL_SOCKET, SL_SO_NONBLOCKING,
-			&lNonBlocking, sizeof(lNonBlocking));
-	if (iStatus < 0)
-	{
-		sl_Close(iSockID);
-		ASSERT_ON_ERROR(SOCKET_OPT_ERROR);
-	}
-
-	return SUCCESS;
-}
+//int BsdTcpServer2(unsigned short usPort)
+//{
+//	SlSockAddrIn_t  sAddr;
+//	SlSockAddrIn_t  sLocalAddr;
+//	int             iCounter;
+//	int             iAddrSize;
+//	int             iSockID;
+//	int             iStatus;
+//	int             iNewSockID;
+//	long            lLoopCount = 0;
+//	long            lNonBlocking = 1;
+//	int             iTestBufLen;
+//
+//	// filling the buffer
+//	for (iCounter = 0; iCounter<BUF_SIZE; iCounter++)
+//	{
+//		g_cBsdBuf[iCounter] = (char)(iCounter % 10);
+//	}
+//
+//	iTestBufLen = BUF_SIZE;
+//
+//	//filling the TCP server socket address
+//	sLocalAddr.sin_family = SL_AF_INET;
+//	sLocalAddr.sin_port = sl_Htons((unsigned short)usPort);
+//	sLocalAddr.sin_addr.s_addr = 0;
+//	g_ServerAddr2=sLocalAddr;
+//
+//	// creating a TCP socket
+//	iSockID = sl_Socket(SL_AF_INET, SL_SOCK_STREAM, 0);
+//
+//	if (iSockID < 0)
+//	{
+//		// error
+//		ASSERT_ON_ERROR(SOCKET_CREATE_ERROR);
+//	}
+//	g_iServerSockID2 = iSockID;
+//	iAddrSize = sizeof(SlSockAddrIn_t);
+//
+//	// binding the TCP socket to the TCP server address
+//	iStatus = sl_Bind(iSockID, (SlSockAddr_t *)&sLocalAddr, iAddrSize);
+//	if (iStatus < 0)
+//	{
+//		// error
+//		sl_Close(iSockID);
+//		ASSERT_ON_ERROR(BIND_ERROR);
+//	}
+//
+//	// putting the socket for listening to the incoming TCP connection
+//	iStatus = sl_Listen(iSockID, 2);
+//	if (iStatus < 0)
+//	{
+//		sl_Close(iSockID);
+//		ASSERT_ON_ERROR(LISTEN_ERROR);
+//	}
+//
+//	Report("Listening Port: %d (%d)\n\r", usPort,sl_Htons(sLocalAddr.sin_port));
+//
+//	// setting socket option to make the socket as non blocking
+//	iStatus = sl_SetSockOpt(iSockID, SL_SOL_SOCKET, SL_SO_NONBLOCKING,
+//			&lNonBlocking, sizeof(lNonBlocking));
+//	if (iStatus < 0)
+//	{
+//		sl_Close(iSockID);
+//		ASSERT_ON_ERROR(SOCKET_OPT_ERROR);
+//	}
+//
+//	return SUCCESS;
+//}
 
 /***************************************************
  * RecvCtrlMsg
@@ -1194,8 +1192,7 @@ int RecvCtrlMsg()
 	}
 
 	//delaySec(10);
-	Report("================================\n\r");
-	Report("Waiting for connection on 5001...\n\r");
+	Report("================================1\n\rWaiting for connection on 5001...\n\r");
 	// waiting for an incoming TCP connection
 	while (iNewSockID < 0)
 	{
@@ -1594,8 +1591,8 @@ static long ConfigureSimpleLinkToDefaultState()
 	ASSERT_ON_ERROR(lRetVal);
 
 	// Remove all profiles
-	//lRetVal = sl_WlanProfileDel(0xFF);
-	//ASSERT_ON_ERROR(lRetVal);
+	lRetVal = sl_WlanProfileDel(0xFF);
+	ASSERT_ON_ERROR(lRetVal);
 
 
 
@@ -1714,17 +1711,23 @@ static long WlanConnect()
 {
 	SlSecParams_t secParams = { 0 };
 	long lRetVal = 0;
+	unsigned char policyVal;
 
 	secParams.Key = (signed char*)SECURITY_KEY;
 	secParams.KeyLen = strlen(SECURITY_KEY);
 	secParams.Type = SECURITY_TYPE;
 
-	//	断线重连
+	//	添加Profile
 	lRetVal = sl_WlanProfileAdd(SSID_NAME,strlen(SSID_NAME),0,&secParams,0,7,0);
 	ASSERT_ON_ERROR(lRetVal);
 
-	lRetVal = sl_WlanConnect((signed char*)SSID_NAME, strlen(SSID_NAME), 0, &secParams, 0);
+	//Set the Connection Policy
+	lRetVal = sl_WlanPolicySet(SL_POLICY_CONNECTION,SL_CONNECTION_POLICY(1,1,0,0,0),&policyVal, 1);
 	ASSERT_ON_ERROR(lRetVal);
+
+	// Connect to the AP
+	//	lRetVal = sl_WlanConnect((signed char*)SSID_NAME, strlen(SSID_NAME), 0, &secParams, 0);
+	//	ASSERT_ON_ERROR(lRetVal);
 
 
 	// Wait for WLAN Event
@@ -1810,21 +1813,40 @@ void WlanStationMode(void *pvParameters)
 	UART_PRINT("Connection established w/ AP and IP is aquired \n\r");
 
 	connect_flag = 1;
+	first_connect_flag = 1;
 
+	InitNetworkService();
+}
+
+// Init the services after connecting to AP
+void InitNetworkService()
+{
 	//SendThread(NULL);
 	InitTcpServer(NULL); // config tcp server
 
-
-
 	while(1)
 	{
+		//检测到重新连接后
+		if(disconnect_handler_flag == 0 && connect_handler_flag == 1 && first_connect_flag == 1){
+			//InitTcpServer(NULL);
+			disconnect_handler_flag = -1;
+			connect_handler_flag = -1;
+			connect_flag = 1;
+			UART_PRINT("Reconnection Launched。\n\r");
+		}
+		//检测到断开连接后
+		if(disconnect_handler_flag == 1 && connect_handler_flag == 0){
+			//sl_Close(g_iServerSockID);
+			disconnect_handler_flag = -1;
+			connect_handler_flag = -1;
+			connect_flag = 0;
+			UART_PRINT("Disconnection Launched.\n\r");
+		}
 		RecvCtrlMsg();
 		//osi_Sleep(1000);
 	}
-
-
-
 }
+
 //*****************************************************************************
 //
 //! Application startup display on UART
