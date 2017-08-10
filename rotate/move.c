@@ -122,7 +122,10 @@ float timeOfWheelRotateAngle(float angle)
 
 float timeOfDistance(float distance_cm)
 {
-	float perimeter = 18.2212374; // cm
+	float perimeter = 23.8761042; // cm
+	// larger wheel 23.8761042
+	// origin wheel 18.2212374
+
 	float ring = distance_cm / perimeter;
 	float angle = ring * 360.0;
 
@@ -130,7 +133,8 @@ float timeOfDistance(float distance_cm)
 }
 float timeOfCarRotateAngle(float carAngle)
 {
-	float carPerimeter= 135.088484;
+	float carPerimeter= 147.654855; //135.088484;
+	// larger wheel 47 * M_PI = 147.654855
 
 	float dis = carPerimeter * carAngle / 360.0;
 

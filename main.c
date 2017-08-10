@@ -609,19 +609,20 @@ void detectObstacle()
 		for(lc=0;lc<10000;lc++)
 		{
 			renewInfrared();
+			// 玄学
+			Report("tryLeft:%d, tryRight:%d\r\n",tryLeft,tryRight); // 这句有玄学，不能注释
 
-			//Report("tryLeft:%d, tryRight:%d\r\n",tryLeft,tryRight);
 			if(g_forwardInfrared!=0&&g_lfInfrared!=0&&g_rfInfrared!=0)
 			{
 				if(tryLeft==1)
 				{
 					Left();
-					delaySec(timeOfDistance(8.0));
+					delaySec(timeOfDistance(13.5)+0.2);
 				}
 				else if(tryRight==1)
 				{
 					Right();
-					delaySec(timeOfDistance(8.0));
+					delaySec(timeOfDistance(13.5)+0.2);
 				}
 
 				Forward();
