@@ -1704,7 +1704,7 @@ static long WlanConnect()
 	secParams.Type = SECURITY_TYPE;
 
 	//	添加Profile
-	lRetVal = sl_WlanProfileAdd(SSID_NAME,strlen(SSID_NAME),0,&secParams,0,7,0);
+	lRetVal = sl_WlanProfileAdd(SSID_NAME,strlen(SSID_NAME),0,&secParams,0,0,0);
 	ASSERT_ON_ERROR(lRetVal);
 
 	//Set the Connection Policy
@@ -1821,7 +1821,7 @@ void InitNetworkService()
 			UART_PRINT("Reconnection Launched。\n\r");
 		}
 		//检测到断开连接后
-		if(disconnect_handler_flag == 1 && connect_handler_flag == 0){
+		if(disconnect_handler_flag == 1 && connect_handler_flag == 0 && first_connect_flag == 1){
 			//sl_Close(g_iServerSockID);
 			disconnect_handler_flag = -1;
 			connect_handler_flag = -1;
