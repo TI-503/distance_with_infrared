@@ -118,11 +118,12 @@ PinMuxConfig(void)
     PinTypeGPIO(PIN_08, PIN_MODE_0, false);
     GPIODirModeSet(GPIOA2_BASE, 0x2, GPIO_DIR_MODE_IN);
 
+
     //
-    // Configure PIN_15 for GPIO Input	前左
+    // Configure PIN_50 for GPIO Input 左前
     //
-    PinTypeGPIO(PIN_15, PIN_MODE_0, false);
-    GPIODirModeSet(GPIOA2_BASE, 0x40, GPIO_DIR_MODE_IN);
+    PinTypeGPIO(PIN_50, PIN_MODE_0, false);
+    GPIODirModeSet(GPIOA0_BASE, 0x1, GPIO_DIR_MODE_IN);
 
     //
     // Configure PIN_18 for GPIO Input 前
@@ -130,12 +131,12 @@ PinMuxConfig(void)
     PinTypeGPIO(PIN_18, PIN_MODE_0, false);
     GPIODirModeSet(GPIOA3_BASE, 0x10, GPIO_DIR_MODE_IN);
 
+    //
+    // Configure PIN_15 for GPIO Input	前右
+    //
+    PinTypeGPIO(PIN_15, PIN_MODE_0, false);
+    GPIODirModeSet(GPIOA2_BASE, 0x40, GPIO_DIR_MODE_IN);
 
-    //
-    // Configure PIN_50 for GPIO Input 右前
-    //
-    PinTypeGPIO(PIN_50, PIN_MODE_0, false);
-    GPIODirModeSet(GPIOA0_BASE, 0x1, GPIO_DIR_MODE_IN);
     //
     // Configure PIN_45 for GPIO Input 右
     //

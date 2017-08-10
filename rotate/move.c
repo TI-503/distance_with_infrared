@@ -122,7 +122,10 @@ float timeOfWheelRotateAngle(float angle)
 
 float timeOfDistance(float distance_cm)
 {
-	float perimeter = 18.2212374; // cm
+	float perimeter = 23.8761042; // cm
+	// larger wheel 23.8761042
+	// origin wheel 18.2212374
+
 	float ring = distance_cm / perimeter;
 	float angle = ring * 360.0;
 
@@ -130,9 +133,33 @@ float timeOfDistance(float distance_cm)
 }
 float timeOfCarRotateAngle(float carAngle)
 {
-	float carPerimeter= 135.088484;
+	float carPerimeter= 147.654855; //135.088484;
+	// larger wheel 47 * M_PI = 147.654855
 
 	float dis = carPerimeter * carAngle / 360.0;
 
 	return timeOfDistance(dis);
+}
+// 转指定角度
+void RotateAngle(float angle)
+{
+	Report("%f\r\n",angle);
+	char dir='+';
+	if(angle>=0)	// 顺时针
+	{
+		dir='+';
+	}
+	else	//逆时针
+	{
+		angle=-angle;
+		dir='-';
+	}
+
+	float sec = timeOfCarRotateAngle(angle);
+
+	Report("dir %c, angle %f, sec %f\r\n", dir, angle, sec);
+	Rotate(dir);
+	MAP_UtilsDelay(80000000 / 6 * sec);
+	Report("done");
+	Pause();
 }

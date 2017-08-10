@@ -24,6 +24,7 @@ int isMoving();// 是否正在移动
 float timeOfWheelRotateAngle(float angle);
 float timeOfDistance(float distance);
 float timeOfCarRotateAngle(float carAngle);
-
+// 转指定角度
+void RotateAngle(float angle);
 
 #endif /* ROTATE_MOVE_H_ */

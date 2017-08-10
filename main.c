@@ -541,9 +541,9 @@ void initInfrared()
 void renewInfrared()
 {
 	g_leftInfrared 	  = MAP_GPIOPinRead(GPIOA2_BASE, 0x2);
-	g_lfInfrared      = MAP_GPIOPinRead(GPIOA2_BASE, 0x40);
+	g_lfInfrared      = MAP_GPIOPinRead(GPIOA0_BASE, 0x1);
 	g_forwardInfrared = MAP_GPIOPinRead(GPIOA3_BASE, 0x10);
-	g_rfInfrared	  = MAP_GPIOPinRead(GPIOA0_BASE, 0x1);
+	g_rfInfrared	  = MAP_GPIOPinRead(GPIOA2_BASE, 0x40);
 	g_rightInfrared   = MAP_GPIOPinRead(GPIOA3_BASE, 0x80);
 
 
@@ -596,21 +596,6 @@ void detectObstacle()
 		return;
 	}
 
-	//	// 向前走
-	//	if(isMoving()==1)
-	//	{
-	//		if(g_forwardInfrared==0||g_lfInfrared==0||g_rfInfrared==0)
-	//		{
-	//			Left();
-	//			return;
-	//		}
-	//		else{
-	//			Forward();
-	//			return;
-	//		}
-	//	}
-
-
 	// 向前走
 	if(isMoving()==1)
 	{
@@ -624,19 +609,20 @@ void detectObstacle()
 		for(lc=0;lc<10000;lc++)
 		{
 			renewInfrared();
+			// 玄学
+			Report("tryLeft:%d, tryRight:%d\r\n",tryLeft,tryRight); // 这句有玄学，不能注释
 
-			//Report("tryLeft:%d, tryRight:%d\r\n",tryLeft,tryRight);
 			if(g_forwardInfrared!=0&&g_lfInfrared!=0&&g_rfInfrared!=0)
 			{
 				if(tryLeft==1)
 				{
 					Left();
-					delaySec(1.5);
+					delaySec(timeOfDistance(13.5)+0.2);
 				}
 				else if(tryRight==1)
 				{
 					Right();
-					delaySec(1.5);
+					delaySec(timeOfDistance(13.5)+0.2);
 				}
 
 				Forward();
@@ -1877,34 +1863,6 @@ BoardInit(void)
 
 	PRCMCC3200MCUInit();
 }
-
-
-
-// 转指定角度
-void RotateAngle(float angle)
-{
-	Report("%f\r\n",angle);
-	char dir='+';
-	if(angle>=0)	// 顺时针
-	{
-		dir='+';
-	}
-	else	//逆时针
-	{
-		angle=-angle;
-		dir='-';
-	}
-
-	float sec = timeOfCarRotateAngle(angle);
-
-	Report("dir %c, angle %f, sec %f\r\n", dir, angle, sec);
-	Rotate(dir);
-	MAP_UtilsDelay(80000000 / 6 * sec);
-	Report("done");
-	Pause();
-}
-
-
 
 
 //****************************************************************************
