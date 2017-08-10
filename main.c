@@ -541,9 +541,9 @@ void initInfrared()
 void renewInfrared()
 {
 	g_leftInfrared 	  = MAP_GPIOPinRead(GPIOA2_BASE, 0x2);
-	g_lfInfrared      = MAP_GPIOPinRead(GPIOA2_BASE, 0x40);
+	g_lfInfrared      = MAP_GPIOPinRead(GPIOA0_BASE, 0x1);
 	g_forwardInfrared = MAP_GPIOPinRead(GPIOA3_BASE, 0x10);
-	g_rfInfrared	  = MAP_GPIOPinRead(GPIOA0_BASE, 0x1);
+	g_rfInfrared	  = MAP_GPIOPinRead(GPIOA2_BASE, 0x40);
 	g_rightInfrared   = MAP_GPIOPinRead(GPIOA3_BASE, 0x80);
 
 
