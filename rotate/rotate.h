@@ -13,5 +13,5 @@ void SetFrequencyOfTimers(unsigned long ulBase, unsigned long ulTimer,
 void ConfigureFrq();						// 设置时钟频率，从而设置4个电机速度
 void ConfigureDir(char dir,int id);	// 设置方向
 void InitRotate();		// 初始化
-
+void SetFrq(int frequency);						// 设置时钟频率，从而设置4个电机速度
 #endif /* ROTATE_ROTATE_H_ */
