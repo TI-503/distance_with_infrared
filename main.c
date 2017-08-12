@@ -200,7 +200,10 @@ unsigned long g_forwardInfrared;
 unsigned long g_lfInfrared;
 unsigned long g_rfInfrared;
 
-
+int g_tryLeft=0;
+int g_tryRight=0;
+int g_forwardLoopCount=0;
+int g_searchState=0;
 signed char g_cAccX, g_cAccY, g_cAccZ;
 
 #if defined(ccs)
@@ -551,6 +554,295 @@ void renewInfrared()
 	//	Report("%ld,%ld,%ld,%ld,%ld\r\n",
 	//			g_leftInfrared,g_lfInfrared,g_forwardInfrared,g_rfInfrared,g_rightInfrared);
 }
+
+void initDetectObs()
+{
+	g_forwardLoopCount =0 ;
+	g_tryLeft=0;
+	g_tryRight=0;
+	g_searchState=0;
+}
+
+void detectObstacle_non_blocking()
+{
+	renewInfrared();
+
+	// 向前走
+	if(isMoving()==1||g_searchState==1)
+	{
+		g_searchState=1;
+		if(g_forwardLoopCount<1000)
+		{
+			g_forwardLoopCount++;
+
+			renewInfrared();
+			// 玄学
+			Report("g_tryLeft:%d, g_tryRight:%d\r\n",g_tryLeft,g_tryRight); // 这句有玄学，不能注释
+
+			if(g_forwardInfrared!=0&&g_lfInfrared!=0&&g_rfInfrared!=0)
+			{
+				if(g_tryLeft==1)
+				{
+					Left();
+					delaySec(timeOfDistance(13.5)+0.2);
+				}
+				else if(g_tryRight==1)
+				{
+					Right();
+					delaySec(timeOfDistance(13.5)+0.2);
+				}
+
+				Forward();
+				// init
+				initDetectObs();
+				return;
+			}
+
+			if(g_tryLeft==0)
+			{
+				if(g_tryRight==0) // init
+				{
+					if((g_forwardInfrared==0&&g_lfInfrared!=0&&g_rfInfrared!=0)	// one obs, forward, 101
+							||(g_lfInfrared==0&&g_rfInfrared==0) // 0X0
+							|| g_lfInfrared!=0)
+					{ // firstly, go left
+						if(g_leftInfrared!=0) // go (1,0)
+						{
+							g_tryLeft=1;
+							Left();
+							delaySec(0.1);
+							return;
+						}
+						else
+						{
+							g_tryLeft=2;
+
+							if(g_rightInfrared!=0) // go (2,1)
+							{
+								g_tryRight=1;
+								Right();
+								delaySec(0.1);
+								return;
+							}
+							else // go (2,2)
+							{
+								g_tryRight=2;
+								Pause();
+								initDetectObs();
+								return;
+							}
+						}
+					}
+					else // firstly, go right
+					{
+						if(g_rightInfrared!=0) // go (0,1)
+						{
+							g_tryRight=1;
+							Right();
+							delaySec(0.1);
+							return;
+						}
+						else
+						{
+							g_tryRight=2;
+
+							if(g_leftInfrared!=0) // go (1,2)
+							{
+								g_tryLeft=1;
+								Left();
+								delaySec(0.1);
+								return;
+							}
+							else // go (2,2)
+							{
+								g_tryLeft=2;
+								Pause();
+								initDetectObs();
+								return;
+							}
+						}
+					}
+				}
+				else if(g_tryRight==1) // (0,1)
+				{
+					if(g_rightInfrared!=0) // go (0,1)
+					{
+						Right();
+						delaySec(0.1);
+						return;
+					}
+					else
+					{
+						g_tryRight=2;
+
+						if(g_leftInfrared!=0) // go (1,2)
+						{
+							g_tryLeft=1;
+							Left();
+							delaySec(0.1);
+							return;
+						}
+						else // go (2,2)
+						{
+							g_tryLeft=2;
+							Pause();
+							initDetectObs();
+							return;
+						}
+					}
+				}
+				else // (0,2) // 无关状态，不可达
+				{
+					if(g_leftInfrared!=0)
+					{
+						g_tryLeft=1;
+						Left();
+						delaySec(0.1);
+						return;
+					}
+					else
+					{
+						g_tryLeft=2;
+						Pause();
+						initDetectObs();
+						return;
+					}
+				}
+			}
+			else if(g_tryLeft==1) // (1,x)
+			{
+				if(g_leftInfrared!=0)  // keep (1,x)
+				{
+					Left();
+					delaySec(0.1);
+					return;
+				}
+				else
+				{
+					g_tryLeft=2;
+
+					if(g_tryRight==2)
+					{
+						Pause();
+						initDetectObs();
+						return;
+					}
+					else
+					{ // g_tryRight==0
+
+						if(g_rightInfrared!=0) // go (2,1)
+						{
+							g_tryRight=1;
+							Right();
+							delaySec(0.1);
+							return;
+						}
+						else // go (2,2)
+						{
+							g_tryRight=2;
+							Pause();
+							initDetectObs();
+							return;
+						}
+					}
+				}
+			}
+			else // if(g_tryLeft==2) , (2,x)
+			{
+				if(g_tryRight==2) // (2,2)
+				{
+					Pause();
+					initDetectObs();
+					// 发出警告
+					return;
+				}
+				else if(g_tryRight==1) // (2,1)
+				{
+					if(g_rightInfrared!=0)
+					{
+						g_tryRight=1;
+						Right();
+						return;
+					}
+					else
+					{
+						Pause();
+						initDetectObs();
+						// 发出警告
+						return;
+					}
+				}
+				else // (2,0)
+				{
+					if(g_rightInfrared!=0)
+					{
+						g_tryRight=1;
+						Right();
+						return;
+					}
+					else
+					{
+						Pause();
+						initDetectObs();
+						// 发出警告
+
+						return;
+					}
+				}
+			}
+		}
+		else // stop searching
+		{
+			Pause();
+			initDetectObs();
+			return;
+		}
+		return;
+	}
+
+	if(isMoving()=='+'||isMoving()=='-'||isMoving()==0||isMoving()==2)
+	{
+		// do nothing
+		return;
+	}
+	// 向左走
+	if(isMoving()==3)
+	{
+		Left();
+		if(g_leftInfrared==0)
+		{
+			if(g_rightInfrared!=0){
+				// 后来可以加一个计数，到一定程度就停止
+				Right();
+			}
+			else{
+				Pause();
+			}
+		}
+		return;
+	}
+
+	// 向右走
+	if (isMoving()==4)
+	{
+		Right();
+		if(g_rightInfrared==0)
+		{
+			if(g_leftInfrared!=0)
+			{
+				// 后来可以加一个计数，到一定程度就停止
+				Left();
+			}
+			else{
+				Pause();
+			}
+		}
+		return;
+	}
+
+
+}
+
 
 void detectObstacle()
 {
@@ -1200,10 +1492,13 @@ int RecvCtrlMsg()
 			//sl_Close(iSockID);
 			ASSERT_ON_ERROR(ACCEPT_ERROR);
 		}
-		detectObstacle();
+		detectObstacle_non_blocking();
 	}
 
-	Report("Accept a new connectiong from %d.%d.%d.%d:%d\n\r",
+	initDetectObs();
+
+	Report("Accept a new connectiong[ %d ] from %d.%d.%d.%d:%d\n\r",
+			iNewSockID,
 			SL_IPV4_BYTE(sAddr.sin_addr.s_addr, 0),
 			SL_IPV4_BYTE(sAddr.sin_addr.s_addr, 1),
 			SL_IPV4_BYTE(sAddr.sin_addr.s_addr, 2),
@@ -1920,9 +2215,9 @@ void main()
 	//
 	// Start the SimpleLink Host
 	//
-	UART_PRINT("TAG1\n");
+	UART_PRINT("TAG1\r\n");
 	lRetVal = VStartSimpleLinkSpawnTask(SPAWN_TASK_PRIORITY);
-	UART_PRINT("TAG2\n");
+	UART_PRINT("TAG2\r\n");
 	if (lRetVal < 0)
 	{
 		ERR_PRINT(lRetVal);
@@ -1940,7 +2235,7 @@ void main()
 		ERR_PRINT(lRetVal);
 		LOOP_FOREVER();
 	}
-	UART_PRINT("TAG3\n");
+	UART_PRINT("TAG3\r\n");
 	//
 	// Start the longConnectionTCP task
 	//
@@ -1952,7 +2247,7 @@ void main()
 	//		ERR_PRINT(lRetVal);
 	//		LOOP_FOREVER();
 	//	}
-	UART_PRINT("TAG4\n");
+	UART_PRINT("TAG4\r\n");
 	//WlanStationMode(NULL);
 	//
 	// Start the task scheduler
