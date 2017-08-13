@@ -365,9 +365,9 @@ void SimpleLinkWlanEventHandler(SlWlanEvent_t *pWlanEvent)
 				g_ucConnectionBSSID[3], g_ucConnectionBSSID[4],
 				g_ucConnectionBSSID[5]);
 
-//		disconnect_handler_flag = 0;
-//		connect_handler_flag = 1;
-//		connect_flag = 1;
+		//		disconnect_handler_flag = 0;
+		//		connect_handler_flag = 1;
+		//		connect_flag = 1;
 
 		//		if(!connect_flag && !first_connect){
 		//			connect_flag = 1;
@@ -412,7 +412,7 @@ void SimpleLinkWlanEventHandler(SlWlanEvent_t *pWlanEvent)
 		disconnect_handler_flag = 1;
 		connect_handler_flag = 0;
 		//if(first_connect_flag);
-			//sl_Close(g_iServerSockID);
+		//sl_Close(g_iServerSockID);
 		UART_PRINT("Disconnection Event\n\r");
 
 		//		if(!first_connect){
@@ -1610,29 +1610,47 @@ int RecvCtrlMsg()
 				UART_PRINT("angle in RotateAngle is %f\n\r", angle);
 
 				char dir='+';
-				if(angle>=0)	// Ë³Ê±Õë
+				if(angle<=180)	// Ë³Ê±Õë
 				{
 					dir='+';
 				}
-				else	//ÄæÊ±Õë
+				else	//Äæ
 				{
-					angle=-angle;
+					angle=360-angle;
 					dir='-';
 				}
 
 				float sec = timeOfCarRotateAngle(angle);
 
 				Report("dir %c, angle %f, sec %f\r\n", dir, angle, sec);
-				Rotate(dir);
-				MAP_UtilsDelay(80000000 / 6 * sec);
 
-				//osi_Sleep(1000 * delay);
+				if(sec<0.01)
+				{
+
+				}
+				else
+				{
+					Rotate(dir);
+					delaySec(sec);
+					//MAP_UtilsDelay(80000000 / 6 * sec);
+				}
 				Pause();
 
 				Forward();
-				detectObstacle();
-				//MAP_UtilsDelay(0.1*8000000);
-				delaySec(1);
+
+				float forwardDis = 50.0;
+				float partDis = 5.0;
+				float secOfDis = timeOfDistance(partDis);
+
+				Report("sec %f\r\n",secOfDis);
+				int walkCount =0;
+				for (walkCount = 0; walkCount < forwardDis / partDis;walkCount++)
+				{
+					Forward();
+					detectObstacle();
+					delaySec(secOfDis);
+				}
+				Report("count%d\r\n",walkCount);
 				Pause();
 				// sl_Send(g_sockID, g_fix, 60, 0);
 			}
