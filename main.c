@@ -207,6 +207,9 @@ int g_tryLeft=0;
 int g_tryRight=0;
 int g_forwardLoopCount=0;
 int g_searchState=0;
+int g_hasKeepAwayObs=0;
+
+
 signed char g_cAccX, g_cAccY, g_cAccZ;
 
 #if defined(ccs)
@@ -946,7 +949,7 @@ void detectObstacle()
 					Right();
 					delaySec(timeOfDistance(13.5)+0.2);
 				}
-
+				g_hasKeepAwayObs = lc;
 				Forward();
 				return;
 			}
@@ -1632,8 +1635,7 @@ int RecvCtrlMsg()
 				Pause();
 
 				Forward();
-
-				float forwardDis = 50.0;
+				float forwardDis = 60.0;
 				float partDis = 5.0;
 				float secOfDis = timeOfDistance(partDis);
 
@@ -1644,6 +1646,11 @@ int RecvCtrlMsg()
 					Forward();
 					detectObstacle();
 					delaySec(secOfDis);
+					if(g_hasKeepAwayObs!=0)
+					{
+						walkCount=0;
+						g_hasKeepAwayObs=0;
+					}
 				}
 				Report("count%d\r\n",walkCount);
 				Pause();
