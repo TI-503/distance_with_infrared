@@ -1624,16 +1624,11 @@ int RecvCtrlMsg()
 
 				Report("dir %c, angle %f, sec %f\r\n", dir, angle, sec);
 
-				if(sec<0.01)
-				{
 
-				}
-				else
-				{
-					Rotate(dir);
-					delaySec(sec);
-					//MAP_UtilsDelay(80000000 / 6 * sec);
-				}
+				Rotate(dir);
+				delaySec(sec);
+				//MAP_UtilsDelay(80000000 / 6 * sec);
+
 				Pause();
 
 				Forward();

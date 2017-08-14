@@ -20,6 +20,9 @@
 
 // 原地转圈
 void Rotate(char dir){
+
+	MAP_GPIOPinWrite(GPIOA0_BASE, 0x8, 0);//EN
+
 	int i=0;
 	for(i=1;i<=4;i++){
 		ConfigureDir(dir,i);
@@ -32,6 +35,9 @@ void Rotate(char dir){
 
 // 向左直行
 void Left(){
+
+	MAP_GPIOPinWrite(GPIOA0_BASE, 0x8, 0);//EN
+
 	ConfigureDir('-',1);
 	ConfigureDir('+',2);
 
@@ -43,6 +49,9 @@ void Left(){
 
 // 向右直行
 void Right(){
+
+	MAP_GPIOPinWrite(GPIOA0_BASE, 0x8, 0);//EN
+
 	ConfigureDir('+',1);
 	ConfigureDir('-',2);
 
@@ -53,6 +62,9 @@ void Right(){
 }
 // 向前直行
 void Forward(){
+
+	MAP_GPIOPinWrite(GPIOA0_BASE, 0x8, 0);//EN
+
 	ConfigureDir('+',3);
 	ConfigureDir('-',4);
 
@@ -63,6 +75,10 @@ void Forward(){
 }
 // 向后直行
 void Backward(){
+
+	MAP_GPIOPinWrite(GPIOA0_BASE, 0x8, 0);//EN
+
+
 	ConfigureDir('-',3);
 	ConfigureDir('+',4);
 
@@ -73,6 +89,9 @@ void Backward(){
 }
 // 停止
 void Pause(){
+
+	MAP_GPIOPinWrite(GPIOA0_BASE, 0x8, 0x8);//EN stop the  electricity noise
+
 	MAP_TimerDisable(TIMERA3_BASE,TIMER_A);
 	MAP_TimerDisable(TIMERA3_BASE,TIMER_B);
 
@@ -110,7 +129,7 @@ void delaySec(float sec)
 
 float timeOfWheelRotateAngle(float angle)
 {
-	float frequency = 1000.0;// 10 * 100.0;
+	float frequency = 1500.0;// 15 * 100.0;
 
 	float stepPerDegree = 8.88888889; // 3200.0 / 360.0;
 
@@ -138,7 +157,7 @@ float timeOfCarRotateAngle(float carAngle)
 
 	float dis = carPerimeter * carAngle / 360.0;
 
-	return timeOfDistance(dis);
+	return timeOfDistance(dis)+0.12;
 }
 // 转指定角度
 void RotateAngle(float angle)
