@@ -617,12 +617,12 @@ void detectObstacle_non_blocking()
 				if(g_tryLeft==1)
 				{
 					Left();
-					delaySec(timeOfDistance(13.5)+0.2);
+					delaySec(timeOfDistance(8)+0.2);
 				}
 				else if(g_tryRight==1)
 				{
 					Right();
-					delaySec(timeOfDistance(13.5)+0.2);
+					delaySec(timeOfDistance(8)+0.2);
 				}
 
 				Forward();
@@ -942,12 +942,12 @@ void detectObstacle()
 				if(tryLeft==1)
 				{
 					Left();
-					delaySec(timeOfDistance(13.5)+0.2);
+					delaySec(timeOfDistance(8)+0.2);
 				}
 				else if(tryRight==1)
 				{
 					Right();
-					delaySec(timeOfDistance(13.5)+0.2);
+					delaySec(timeOfDistance(8)+0.2);
 				}
 				g_hasKeepAwayObs = lc;
 				Forward();
@@ -2144,7 +2144,6 @@ void InitNetworkService()
 			UART_PRINT("Disconnection Launched.\n\r");
 		}
 		RecvCtrlMsg();
-		//osi_Sleep(1000);
 	}
 }
 
